@@ -1,0 +1,492 @@
+package com.mycompany.prjwithgui;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+
+
+public class PrjWithGui {
+        
+    private static User currentUser;
+    private static Teacher teacher;
+    private static Student student;
+    private static List<Course> availableCourses = new ArrayList<>();
+    
+    public static void main(String[] args) {
+        
+        teacher = new Teacher("teacher1", "password123", "teacher1@example.com", "Mathematics", "PhD");
+        student = new Student("student1", "password123", "student1@example.com");
+        
+        availableCourses.add(new Course("Math", 1000, 30));
+        availableCourses.add(new Course("Science", 1200, 25));
+        availableCourses.add(new Course("History", 900, 20));
+
+        
+        showLoginWindow();
+    }
+
+    private static void showLoginWindow() {
+        JFrame frame = new JFrame("OOP Project - Login");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 200);
+
+        Container container = frame.getContentPane();
+        container.setLayout(new GridLayout(3, 2));
+
+        JLabel usernameLabel = new JLabel("Username:");
+        JTextField usernameField = new JTextField();
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordField = new JPasswordField();
+        JButton loginButton = new JButton("Login");
+
+        container.add(usernameLabel);
+        container.add(usernameField);
+        container.add(passwordLabel);
+        container.add(passwordField);
+        container.add(new JLabel(""));
+        container.add(loginButton);
+
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+
+                if (teacher.getUsername().equals(username) && teacher.checkPassword(password)) {
+                    currentUser = teacher;
+                    frame.dispose();
+                    showTeacherMenu();
+                } else if (student.getUsername().equals(username) && student.checkPassword(password)) {
+                    currentUser = student;
+                    frame.dispose();
+                    showStudentMenu();
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid username or password.");
+                }
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
+    private static void showStudentMenu() {
+        JFrame frame = new JFrame("Student Menu");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+
+        Container container = frame.getContentPane();
+        container.setLayout(new GridLayout(8, 1));
+
+        JButton viewProfileButton = new JButton("View Profile");
+        JButton updateProfileButton = new JButton("Update Profile");
+        JButton enrollCourseButton = new JButton("Enroll in Course");
+        JButton withdrawCourseButton = new JButton("Withdraw from Course");
+        JButton scheduleSessionButton = new JButton("Schedule Session");
+        JButton processPaymentButton = new JButton("Process Payment");
+        JButton giveRatingButton = new JButton("Give Rating");
+        JButton logoutButton = new JButton("Logout");
+
+        container.add(viewProfileButton);
+        container.add(updateProfileButton);
+        container.add(enrollCourseButton);
+        container.add(withdrawCourseButton);
+        container.add(scheduleSessionButton);
+        container.add(processPaymentButton);
+        container.add(giveRatingButton);
+        container.add(logoutButton);
+
+        viewProfileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentUser.viewProfile();
+            }
+        });
+
+        updateProfileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String newEmail = JOptionPane.showInputDialog(frame, "New Email:");
+                String newPassword = JOptionPane.showInputDialog(frame, "New Password:");
+                currentUser.updateProfile(newEmail, newPassword);
+            }
+        });
+
+        enrollCourseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enrollInCourse();
+            }
+        });
+
+        withdrawCourseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                withdrawFromCourse();
+            }
+        });
+
+        scheduleSessionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scheduleSession();
+            }
+        });
+
+        processPaymentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                processPayment();
+            }
+        });
+
+        giveRatingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                giveRating();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                currentUser = null;
+                showLoginWindow();
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
+    private static void showTeacherMenu() {
+        JFrame frame = new JFrame("Teacher Menu");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+
+        Container container = frame.getContentPane();
+        container.setLayout(new GridLayout(4, 1));
+
+        JButton viewProfileButton = new JButton("View Profile");
+        JButton updateProfileButton = new JButton("Update Profile");
+        JButton addCourseButton = new JButton("Add Course");
+        JButton logoutButton = new JButton("Logout");
+
+        container.add(viewProfileButton);
+        container.add(updateProfileButton);
+        container.add(addCourseButton);
+        container.add(logoutButton);
+
+        viewProfileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                currentUser.viewProfile();
+            }
+        });
+
+        updateProfileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String newEmail = JOptionPane.showInputDialog(frame, "New Email:");
+                String newPassword = JOptionPane.showInputDialog(frame, "New Password:");
+                currentUser.updateProfile(newEmail, newPassword);
+            }
+        });
+
+        addCourseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addCourse();
+            }
+        });
+
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                currentUser = null;
+                showLoginWindow();
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
+    private static void enrollInCourse() {
+    
+    String courseName = JOptionPane.showInputDialog("Enter the course name you want to enroll in:");
+    Course courseToEnroll = findCourseByName(courseName, availableCourses.toArray(new Course[0]));
+    if (courseToEnroll != null) {
+        ((Student) currentUser).enrollCourse(courseToEnroll);
+        
+    } else {
+        JOptionPane.showMessageDialog(null, "Course not found. Please enter a valid course name.");
+    }
+}
+
+    private static void withdrawFromCourse() {
+   
+    String courseName = JOptionPane.showInputDialog("Enter the course name you want to withdraw from:");
+    Course courseToWithdraw = findCourseByName(courseName, availableCourses.toArray(new Course[0]));
+    if (courseToWithdraw != null) {
+        ((Student) currentUser).withdrawCourse(courseToWithdraw);
+    } else {
+        JOptionPane.showMessageDialog(null, "You are not enrolled in this course.");
+    }
+}
+
+
+    private static void scheduleSession() {
+   
+    String courseName = JOptionPane.showInputDialog("Enter the course name you want to schedule a session for:");
+    Course courseToSchedule = findCourseByName(courseName, availableCourses.toArray(new Course[0]));
+    if (courseToSchedule != null && ((Student) currentUser).getCoursesEnrolled().contains(courseToSchedule)) {
+        while (true) {
+            try {
+                String startTimeStr = JOptionPane.showInputDialog("Session Start Time (YYYY-MM-DDTHH:MM):");
+                LocalDateTime startTime = LocalDateTime.parse(startTimeStr);
+                String endTimeStr = JOptionPane.showInputDialog("Session End Time (YYYY-MM-DDTHH:MM):");
+                LocalDateTime endTime = LocalDateTime.parse(endTimeStr);
+                Session newSession = new SessionScheduler(1, startTime, endTime, courseToSchedule);
+                newSession.conductSession();
+                break;
+            } catch (DateTimeParseException e) {
+                JOptionPane.showMessageDialog(null, "Invalid date format. Please enter the date again.");
+            }
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Course not found or you are not enrolled in this course.");
+    }
+}
+
+
+    private static void processPayment() {
+        
+        try {
+            double amount = Double.parseDouble(JOptionPane.showInputDialog("Payment Amount:"));
+            String currency = JOptionPane.showInputDialog("Currency:");
+            Payment payment = new Payment(1, amount, currency);
+            payment.processPayment();
+        } catch (PaymentFailedException | NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Payment failed: " + e.getMessage());
+        }
+    }
+
+    private static void giveRating() {
+        
+        try {
+            int stars = Integer.parseInt(JOptionPane.showInputDialog("Rating (1-5):"));
+            String description = JOptionPane.showInputDialog("Description:");
+            Rating rating = new Rating(stars, description);
+            rating.displayRating();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid rating. Please enter a number between 1 and 5.");
+        }
+    }
+
+    private static void addCourse() {
+        
+        String courseName = JOptionPane.showInputDialog("Course Name:");
+        double tuitionFee = Double.parseDouble(JOptionPane.showInputDialog("Course Fee:"));
+        int capacity = Integer.parseInt(JOptionPane.showInputDialog("Course Capacity:"));
+        Course course = new Course(courseName, tuitionFee, capacity);
+        ((Teacher) currentUser).addCourse(course);
+    }
+
+    private static Course findCourseByName(String courseName, Course... courses) {
+        for (Course course : courses) {
+            if (course.getName().equalsIgnoreCase(courseName)) {
+                return course;
+            }
+        }
+        return null;
+    }
+    
+}
+    
+ abstract class User {
+    private String username;
+    private String password;
+    private String email;
+
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean checkPassword(String password) {
+        return this.password.equals(password);
+    }
+
+    public void updateProfile(String newEmail, String newPassword) {
+        this.email = newEmail;
+        this.password = newPassword;
+        System.out.println("Profile updated successfully.");
+    }
+
+    public void viewProfile() {
+        System.out.println("Username: " + username);
+        System.out.println("Email: " + email);
+    }
+}
+
+// Teacher Class
+class Teacher extends User {
+    private String specialization;
+    private String degree;
+    private List<Course> coursesTaught = new ArrayList<>();
+
+    public Teacher(String username, String password, String email, String specialization, String degree) {
+        super(username, password, email);
+        this.specialization = specialization;
+        this.degree = degree;
+    }
+
+    public void addCourse(Course course) {
+        coursesTaught.add(course);
+        System.out.println("Course added: " + course.getName());
+    }
+}
+
+// Student Class
+class Student extends User {
+    private List<Course> coursesEnrolled = new ArrayList<>();
+
+    public Student(String username, String password, String email) {
+        super(username, password, email);
+    }
+
+    public void enrollCourse(Course course) {
+        coursesEnrolled.add(course);
+        System.out.println("Enrolled in course: " + course.getName());
+    }
+
+    public void withdrawCourse(Course course) {
+        coursesEnrolled.remove(course);
+        System.out.println("Withdrawn from course: " + course.getName());
+    }
+
+    public List<Course> getCoursesEnrolled() {
+        return coursesEnrolled;
+    }
+}
+
+// Course Class
+class Course {
+    private String name;
+    private double tuitionFee;
+    private int capacity;
+
+    public Course(String name, double tuitionFee, int capacity) {
+        this.name = name;
+        this.tuitionFee = tuitionFee;
+        this.capacity = capacity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getTuitionFee() {
+        return tuitionFee;
+    }
+}
+
+// Session Class
+class Session {
+    private int sessionId;
+     LocalDateTime startTime;
+     LocalDateTime endTime;
+     Course course;
+
+    public Session(int sessionId, LocalDateTime startTime, LocalDateTime endTime, Course course) {
+        this.sessionId = sessionId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.course = course;
+    }
+    
+     public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void conductSession() {
+        System.out.println("Conducting session for course: " + course.getName());
+    }
+}
+
+// SessionScheduler Class
+class SessionScheduler extends Session {
+
+    public SessionScheduler(int sessionId, LocalDateTime startTime, LocalDateTime endTime, Course course) {
+        super(sessionId, startTime, endTime, course);
+    }
+    
+
+    public void scheduleSession(Session session) {
+        System.out.println("Scheduled session from " + session.startTime + " to " + session.endTime + " for course " + session.course.getName());
+    }
+}
+
+// Payment Class
+class Payment {
+    private int paymentId;
+    private double amount;
+    private String currency;
+
+    public Payment(int paymentId, double amount, String currency) {
+        this.paymentId = paymentId;
+        this.amount = amount;
+        this.currency = currency;
+    }
+
+    public void processPayment() throws PaymentFailedException {
+        
+        if (amount <= 0) {
+            throw new PaymentFailedException("Invalid payment amount.");
+        }
+        System.out.println("Payment of " + amount + " " + currency + " processed successfully.");
+    }
+}
+
+// PaymentFailedException Class
+class PaymentFailedException extends Exception {
+    public PaymentFailedException(String message) {
+        super(message);
+    }
+}
+
+// Rating Class
+class Rating {
+    private int stars;
+    private String description;
+    
+
+    public Rating(int stars, String description) {
+        this.stars = stars;
+        this.description = description;
+        
+    }
+
+    public void displayRating() {
+        System.out.println( "Rating given is: " + stars + " stars");
+        System.out.println("Description: " + description);
+    }
+}
